@@ -359,6 +359,56 @@ public abstract class Table {
 
 		return result;
 	}
+	
+	public boolean delete(Map<String, Object> where) {
+		Connection connection = null;
+		try {
+			connection = SqlHandler.getConnection(database);
+		} catch (Exception exception) {
+			SqlHandler.error("Could not connect to database! Is some info wrong?");
+			return false;
+		}
+
+		String tableContent = "";
+		List<Object> preparedValues = new ArrayList<Object>();
+		Iterator<Entry<String, Object>> it = where.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String, Object> pair = (Map.Entry<String, Object>) it.next();
+			tableContent = tableContent + " AND " + pair.getKey() + " = ?";
+			preparedValues.add(pair.getValue());
+		}
+
+		PreparedStatement preparedStatement = null;
+		try {
+			preparedStatement = connection.prepareStatement("DELETE FROM " + table + " WHERE " + tableContent.substring(4));
+		} catch (Exception ex) {
+			SqlHandler.error("Could not create table! Post a bug report with the following error: ");
+			ex.printStackTrace();
+			return false;
+		}
+
+		int i = 1;
+		try {
+			for (Object values : preparedValues) {
+				preparedStatement.setObject(i, values);
+				i++;
+			}
+		} catch (Exception ex) {
+			SqlHandler.error("Can't input prepared statement values! Are your objects correct?");
+		}
+
+		SqlHandler.log(preparedStatement.toString());
+
+		boolean result;
+		try {
+			result = preparedStatement.execute();
+		} catch (Exception exception) {
+			SqlHandler.error("Could not execure query! Is your key and value correct?");
+			return false;
+		}
+
+		return result;
+	}
 
 	public String getDatabase() {
 		return database;
