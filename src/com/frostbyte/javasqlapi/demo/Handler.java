@@ -1,7 +1,7 @@
 package com.frostbyte.javasqlapi.demo;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.frostbyte.javasqlapi.SqlHandler;
@@ -19,13 +19,11 @@ public class Handler extends SqlHandler{
 		SQL_PASS = "";
 		SQL_USER = "root";
 		
-		Map<String, Object> insert = new LinkedHashMap<String, Object>();
-		insert.put("name", "Kittens are hot");
-		added.update(insert, "description", "I don't love");
-
-		List<Map<String, Object>> values = added.get();
-		for(Map<String, Object> value : values){
-			System.out.println("Name: "+ value.get("name") + "           Description" + value.get("description"));
-		}
+		Map<String, Object> where = new LinkedHashMap<String, Object>();
+		where.put("name", "Kitten Love");
+		where.put("id", 8);
+		Map<String, Object> put = new HashMap<String, Object>();
+		put.put("description", "Hail");
+		added.update(put, where);
 	}
 }

@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class SqlHandler {
-	public static boolean log = true, log_errors = false, console_errors = true;
+	public static boolean log = false, log_errors = false, console_errors = true;
 	public static String SQL_HOST, SQL_USER, SQL_PASS;
 
 	public static void log(String message) {

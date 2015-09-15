@@ -308,7 +308,7 @@ public abstract class Table {
 	/*
 	 * Creates a row
 	 */
-	public boolean update(Map<String, Object> inputs, String key, Object value) {
+	public boolean update(Map<String, Object> inputs, Map<String, Object> where) {
 		Connection connection = null;
 		try {
 			connection = SqlHandler.getConnection(database);
@@ -325,10 +325,19 @@ public abstract class Table {
 			tableContent = tableContent + ", " + pair.getKey() + " = ?";
 			preparedValues.add(pair.getValue());
 		}
+		
+		String whereContent = "";
+		Iterator<Entry<String, Object>> vit = where.entrySet().iterator();
+		while (vit.hasNext()) {
+			Map.Entry<String, Object> pair = (Map.Entry<String, Object>) vit.next();
+			whereContent = whereContent + " AND " + pair.getKey() + " = ?";
+			preparedValues.add(pair.getValue());
+		}
+
 
 		PreparedStatement preparedStatement = null;
 		try {
-			preparedStatement = connection.prepareStatement("UPDATE " + table + " SET " + tableContent.substring(2) + " WHERE " + key + " = ?;");
+			preparedStatement = connection.prepareStatement("UPDATE " + table + " SET " + tableContent.substring(2) + " WHERE " + whereContent.substring(4) + ";");
 		} catch (Exception ex) {
 			SqlHandler.error("Could not create table! Post a bug report with the following error: ");
 			ex.printStackTrace();
@@ -341,8 +350,6 @@ public abstract class Table {
 				preparedStatement.setObject(i, values);
 				i++;
 			}
-
-			preparedStatement.setObject(i, value);
 		} catch (Exception ex) {
 			SqlHandler.error("Can't input prepared statement values! Are your objects correct?");
 		}
@@ -354,6 +361,7 @@ public abstract class Table {
 			result = preparedStatement.execute();
 		} catch (Exception exception) {
 			SqlHandler.error("Could not execure query! Is your key and value correct?");
+			exception.printStackTrace();
 			return false;
 		}
 
