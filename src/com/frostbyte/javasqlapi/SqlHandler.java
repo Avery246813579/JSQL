@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SqlHandler {
 	public static boolean log = false, log_errors = false, console_errors = true;
@@ -22,6 +24,10 @@ public class SqlHandler {
 	}
 
 	public static void executeQuery(String SQL_DATA, String query) {
+		if(!checkVariables(SQL_DATA)){
+			return;
+		}
+		
 		Connection connection = null;
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -58,6 +64,10 @@ public class SqlHandler {
 	}
 
 	public static Connection getConnection(String SQL_DATA) {
+		if(!checkVariables(SQL_DATA)){
+			return null;
+		}
+		
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			String conn = "jdbc:mysql://" + SQL_HOST + "/" + SQL_DATA;
@@ -67,6 +77,37 @@ public class SqlHandler {
 		}
 
 		return null;
+	}
+	
+	/**
+	 * A method that checks if all the variables needed 
+	 * to establish a connection are set.
+	 * 
+	 * @return	If all the variables are all set
+	 */
+	public static boolean checkVariables(String SQL_DATA){
+		List<String> unknownVariables = new ArrayList<String>();
+		if(SQL_HOST == null){
+			unknownVariables.add("SQL_HOST");
+		}
+		
+		if(SQL_USER == null){
+			unknownVariables.add("SQL_USER");
+		}
+		
+		if(SQL_PASS == null){
+			unknownVariables.add("SQL_PASS");
+		}
+		
+		if(SQL_DATA == null){
+			unknownVariables.add("SQL_DATA");
+		}
+		
+		if(!unknownVariables.isEmpty()){
+			Logger.log(Logger.FATAL_ERROR, "All connection variables not found. Unknown variables: " + unknownVariables.toString());
+		}
+		
+		return unknownVariables.isEmpty();
 	}
 
 }

@@ -16,7 +16,7 @@ public abstract class Table {
 	private List<String> primaryKeys = new ArrayList<String>();
 	private Map<String, String> foreignKeys = new HashMap<String, String>();
 	private String database, table;
-
+	
 	public Table(String database, String table) {
 		this.database = database;
 		this.table = table;
@@ -56,12 +56,6 @@ public abstract class Table {
 		PreparedStatement preparedStatement = null;
 		try {
 			String statement = "INSERT INTO " + table + " " + tableContent + " ";
-			
-			if(!foreignKeys.isEmpty()){
-				for(String key : foreignKeys.keySet()){
-					statement += "FOREIGN KEY (" + key + ") REFERENCES " + foreignKeys.get(key) + " ";
-				}
-			}
 			
 			preparedStatement = connection.prepareStatement(statement);
 		} catch (Exception ex) {
@@ -121,7 +115,18 @@ public abstract class Table {
 
 		PreparedStatement preparedStatement = null;
 		try {
-			preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + table + " (" + tableContent.substring(2) + tableSuffix + ");");
+			String statement = "CREATE TABLE IF NOT EXISTS " + table + " (" + tableContent.substring(2) + tableSuffix;
+		
+			if(!foreignKeys.isEmpty()){
+				for(String key : foreignKeys.keySet()){
+					statement += ", FOREIGN KEY (" + key + ") REFERENCES " + foreignKeys.get(key);
+				}
+			}
+			
+			statement += ")";
+			
+			statement += ";";
+			preparedStatement = connection.prepareStatement(statement);
 		} catch (Exception ex) {
 			SqlHandler.error("Could not create table! Is the com.mysql.jdbc.Driver driver a property?");
 			ex.printStackTrace();
