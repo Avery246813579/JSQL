@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,8 +14,8 @@ import java.util.Map.Entry;
 public abstract class Table {
 	public Map<String, String> variables = new LinkedHashMap<String, String>();
 	private List<String> primaryKeys = new ArrayList<String>();
-	private String database;
-	private String table;
+	private Map<String, String> foreignKeys = new HashMap<String, String>();
+	private String database, table;
 
 	public Table(String database, String table) {
 		this.database = database;
@@ -23,6 +24,10 @@ public abstract class Table {
 
 	public void addPrimaryKey(String key) {
 		primaryKeys.add(key);
+	}
+	
+	public void addForeignKey(String key, String referenceTable, String referenceKey){
+		foreignKeys.put(key, referenceTable + "(" + referenceKey + ")");
 	}
 
 	/*
@@ -50,7 +55,15 @@ public abstract class Table {
 
 		PreparedStatement preparedStatement = null;
 		try {
-			preparedStatement = connection.prepareStatement("INSERT INTO " + table + " " + tableContent + ";");
+			String statement = "INSERT INTO " + table + " " + tableContent + " ";
+			
+			if(!foreignKeys.isEmpty()){
+				for(String key : foreignKeys.keySet()){
+					statement += "FOREIGN KEY (" + key + ") REFERENCES " + foreignKeys.get(key) + " ";
+				}
+			}
+			
+			preparedStatement = connection.prepareStatement(statement);
 		} catch (Exception ex) {
 			SqlHandler.error("Could not create table! Post a bug report with the following error: ");
 			ex.printStackTrace();
@@ -417,7 +430,7 @@ public abstract class Table {
 
 		return result;
 	}
-
+	
 	public String getDatabase() {
 		return database;
 	}
