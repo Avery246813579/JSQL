@@ -1,7 +1,7 @@
 package com.frostbyte.javasqlapi;
 
 public class Logger {
-	public static final String FATAL_ERROR = "FATAL ERROR", WARNING = "WARNING";
+	public static final String SQL_FATAL_ERROR = "SQL FATAL ERROR", SQL_WARNING = "SQL WARNING", SQL_STATUS = "SQL STATUS";
 	
 	public static void log(String message){
 		System.out.println(message);

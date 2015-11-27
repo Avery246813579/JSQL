@@ -104,7 +104,7 @@ public class SqlHandler {
 		}
 		
 		if(!unknownVariables.isEmpty()){
-			Logger.log(Logger.FATAL_ERROR, "All connection variables not found. Unknown variables: " + unknownVariables.toString());
+			Logger.log(Logger.SQL_FATAL_ERROR, "All connection variables not found. Unknown variables: " + unknownVariables.toString());
 		}
 		
 		return unknownVariables.isEmpty();

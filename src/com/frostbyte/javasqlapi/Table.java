@@ -74,8 +74,6 @@ public abstract class Table {
 			SqlHandler.error("Can't input prepared statement values! Are your objects correct?");
 		}
 
-		SqlHandler.log(preparedStatement.toString());
-
 		boolean result;
 		try {
 			result = preparedStatement.execute();
@@ -133,8 +131,6 @@ public abstract class Table {
 			return false;
 		}
 
-		SqlHandler.log(preparedStatement.toString());
-
 		boolean result;
 		try {
 			result = preparedStatement.execute();
@@ -143,6 +139,10 @@ public abstract class Table {
 			return false;
 		}
 
+		if(result){
+			Logger.log(Logger.SQL_STATUS, "Table " + table + " has been created!");
+		}
+		
 		return result;
 	}
 
@@ -266,6 +266,77 @@ public abstract class Table {
 			while (ite.hasNext()) {
 				Map.Entry<String, Object> pair = (Map.Entry<String, Object>) ite.next();
 				tableContent = tableContent + "AND " + pair.getKey() + " = ? ";
+				preparedValues.add(pair.getValue());
+			}
+
+
+			PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM " + table + " WHERE " + tableContent.substring(4) + ";");
+
+			int i = 1;
+			try {
+				for (Object value : preparedValues) {
+					preparedStatement.setObject(i, value);
+					i++;
+				}
+			} catch (Exception ex) {
+				SqlHandler.error("Can't input prepared statement values! Are your objects correct?");
+			}
+			
+			SqlHandler.log(preparedStatement.toString());
+
+			ResultSet resultSet = null;
+			try {
+				resultSet = preparedStatement.executeQuery();
+			} catch (Exception exception) {
+				SqlHandler.error("Could not execure query! Is your key and value correct?");
+				return null;
+			}
+
+			while (resultSet.next()) {
+				Map<String, Object> table = new LinkedHashMap<String, Object>();
+
+				Iterator<Entry<String, String>> it = variables.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry<String, String> pair = (Map.Entry<String, String>) it.next();
+					table.put(pair.getKey(), resultSet.getObject(pair.getKey()));
+
+				}
+
+				tables.add(table);
+			}
+
+			preparedStatement.close();
+			connection.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		return tables;
+	}
+
+	public List<Map<String, Object>> get(Map<String, Object> values, int option) {
+		List<Map<String, Object>> tables = new ArrayList<Map<String, Object>>();
+
+		try {
+			Connection connection = null;
+			try {
+				connection = SqlHandler.getConnection(database);
+			} catch (Exception exception) {
+				SqlHandler.error("Could not connect to database! Is some info wrong?");
+				return null;
+			}
+			
+			String tableContent = "";
+			List<Object> preparedValues = new ArrayList<Object>();
+			Iterator<Entry<String, Object>> ite = values.entrySet().iterator();
+			while (ite.hasNext()) {
+				Map.Entry<String, Object> pair = (Map.Entry<String, Object>) ite.next();
+				
+				if(option == SqlOptions.AND){
+					tableContent = tableContent + "AND " + pair.getKey() + " = ? ";
+				}else if(option == SqlOptions.OR){
+					tableContent = tableContent + "OR " + pair.getKey() + " = ? ";
+				}
 				preparedValues.add(pair.getValue());
 			}
 
