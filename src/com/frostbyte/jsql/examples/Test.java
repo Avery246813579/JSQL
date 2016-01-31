@@ -10,9 +10,9 @@ import com.frostbyte.jsql.Table;
 public class Test extends Table{
 
 	public Test() {
-		super(new Database(new Account(new Host("127.0.0.1"), "root", ""), "test"), "Test");
+		super(new Database(new Account(new Host("127.0.0.1"), "root", ""), "test"), "Test4");
 
-		properties.add(new Property("id", Type.INT));
+		properties.add(new Property("id", Type.INT, true));
 		
 		create();
 	}
