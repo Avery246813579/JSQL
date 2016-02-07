@@ -65,4 +65,8 @@ public class Database {
 		return null;
 
 	}
+	
+	public void drop(){
+		executeQuery("DROP DATABASE " + database);
+	}
 }

@@ -31,7 +31,18 @@ public class Table {
 		}
 		
 		
-		
 		database.executeQuery("CREATE TABLE " + name + "(" + props.substring(2) + ")");
+	}
+	
+	public void drop(){
+		database.executeQuery("DROP TABLE " + name);
+	}
+	
+	public void truncate(){
+		database.executeQuery("TRUNCATE TABLE " + name);
+	}
+	
+	public void addRow(){
+		
 	}
 }
